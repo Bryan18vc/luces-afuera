@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Arcadia — Juegos</title>
+<style>
+:root{
+ --bg:#070b16;--bg2:#0d1425;--panel:#10192d;--card:#151f35;--card2:#1a2742;
+ --line:#273654;--text:#f5f7ff;--muted:#98a6c2;--accent:#7885ff;--accent2:#9a70ff;
+ --gold:#f3d56b;--green:#71d9a0;--red:#ff8195
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text);
+background:radial-gradient(circle at 15% 10%,#19284c 0,transparent 28%),radial-gradient(circle at 85% 15%,#241b4d 0,transparent 25%),linear-gradient(145deg,var(--bg),var(--bg2));}
+button,input,select{font:inherit}.app{width:min(1120px,94%);margin:auto;padding:24px 0 55px}
+.nav{height:62px;display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:48px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:20px;letter-spacing:-.4px}.brandmark{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 8px 28px #0005}
+.navtag{font-size:12px;color:var(--muted);border:1px solid var(--line);background:#0f1729;padding:8px 11px;border-radius:999px}
+.view{display:none}.view.active{display:block}
+.home{text-align:center;padding:24px 0 10px}.eyebrow{color:#b8c1d9;font-size:13px;letter-spacing:1.5px;text-transform:uppercase}
+.home h1{font-size:clamp(42px,8vw,76px);line-height:.98;letter-spacing:-3px;margin:14px 0}.home>p{color:var(--muted);max-width:610px;margin:0 auto 42px;line-height:1.65}
+.games{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;text-align:left}
+.game-card{position:relative;overflow:hidden;min-height:300px;border:1px solid var(--line);border-radius:28px;padding:27px;background:linear-gradient(145deg,rgba(23,34,59,.96),rgba(14,22,39,.96));transition:transform .18s,border-color .18s}
+.game-card:hover{transform:translateY(-4px);border-color:#465987}
+.game-art{height:112px;display:flex;align-items:center;font-size:67px;letter-spacing:-12px}
+.game-card h2{font-size:30px;margin:5px 0 8px}.game-card p{color:var(--muted);line-height:1.55;max-width:430px;min-height:49px}
+.play{margin-top:16px;width:auto;min-width:170px}
+.primary{border:0;border-radius:13px;padding:12px 18px;color:white;font-weight:850;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 9px 24px #5965ff26}
+.secondary{border:1px solid var(--line);border-radius:12px;padding:11px 16px;color:var(--text);background:#17233c;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #b6bdff;outline-offset:2px}
+.footer{text-align:center;color:#65738f;font-size:12px;margin-top:32px}
+.game-head{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:22px}.game-title{display:flex;align-items:center;gap:13px}.game-title .mini{font-size:36px}.game-title h2{margin:0;font-size:30px}.game-title p{margin:3px 0 0;color:var(--muted);font-size:13px}.back{white-space:nowrap}
+.game-shell{background:rgba(10,16,29,.75);border:1px solid var(--line);border-radius:25px;padding:24px}
+.michi-layout{display:grid;grid-template-columns:minmax(250px,390px) minmax(250px,1fr);gap:30px;align-items:start}
+.michi-side{background:#111c31;border:1px solid var(--line);border-radius:18px;padding:20px}.michi-side h3{margin:0 0 10px}.michi-side p{color:var(--muted);line-height:1.5;font-size:14px}
+.room-form{display:flex;gap:9px;flex-wrap:wrap;margin-top:17px}.room-form input{flex:1;min-width:150px;background:#0d1729;color:var(--text);border:1px solid var(--line);border-radius:11px;padding:11px;text-transform:uppercase}.room-actions{display:flex;gap:8px;width:100%}.room-actions button{flex:1}
+.notice{text-align:center;min-height:22px;color:var(--muted);font-size:13px;margin:12px 0}.notice.error{color:var(--red)}.notice.success{color:var(--green)}
+.room-code{text-align:center;font-size:31px;font-weight:950;letter-spacing:6px;background:#121e35;border:1px solid var(--line);border-radius:15px;padding:13px;margin-bottom:8px}
+.online{text-align:center;color:var(--muted);font-size:13px;margin-bottom:14px}.turn{text-align:center;color:var(--muted);min-height:23px}.board3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;width:min(370px,100%);margin:16px auto}.cell{aspect-ratio:1;border:1px solid #2b3b5e;border-radius:16px;background:#182641;color:white;font-size:44px;font-weight:950;cursor:pointer}.cell:hover:not(:disabled){background:#213254}.cell:disabled{cursor:not-allowed;opacity:.9}.result{text-align:center;min-height:27px;font-weight:850}.result.win{color:var(--green)}
+.lights-controls{display:flex;gap:9px;flex-wrap:wrap;align-items:end;margin-bottom:18px}.field{display:flex;flex-direction:column;gap:6px;color:var(--muted);font-size:12px}.field select{background:#15223a;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:145px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:20px}.stat{background:#121e34;border:1px solid var(--line);border-radius:13px;padding:10px;text-align:center}.stat b{display:block;font-size:20px}.stat span{color:var(--muted);font-size:11px}
+.lights-area{text-align:center}.lights{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;width:min(410px,100%);margin:20px auto}.light{aspect-ratio:1;border:1px solid #2d3b59;border-radius:12px;background:#1a2843;cursor:pointer}.light.on{background:var(--gold);border-color:#ffe994;box-shadow:0 0 22px #f3d56b7a}.light.hintcell{outline:3px solid #aeb7ff;outline-offset:2px}.lights-info{color:var(--muted);font-size:14px}.legend{color:#7e8ca7;font-size:12px;max-width:620px;margin:0 auto 17px;line-height:1.5}.actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap}.score{color:var(--muted);font-size:12px;margin-top:12px}
+@media(max-width:760px){.games,.michi-layout{grid-template-columns:1fr}.game-card{min-height:0}.game-art{height:90px}.stats{grid-template-columns:repeat(2,1fr)}.game-head{align-items:flex-start}.game-title h2{font-size:24px}.game-shell{padding:16px}.nav{margin-bottom:30px}}
+@media(max-width:430px){.app{width:92%}.home h1{letter-spacing:-2px}.game-card{padding:21px}.room-actions{flex-direction:column}.room-code{font-size:25px}}
+</style>
+</head>
+<body>
+<div class="app">
+<nav class="nav">
+ <div class="brand"><span class="brandmark">🎮</span>Arcadia</div>
+ <span class="navtag" id="navTag">MENÚ PRINCIPAL</span>
+</nav>
+
+<main>
+<section class="view active" id="homeView">
+ <div class="home">
+  <div class="eyebrow">Tu pequeña sala de juegos</div>
+  <h1>¿A qué jugamos?</h1>
+  <p>Elige un juego y entra directamente a su propia pantalla. La plataforma queda preparada para añadir más juegos en el futuro.</p>
+ </div>
+ <div class="games">
+  <article class="game-card">
+   <div class="game-art">❌⭕</div><h2>Michi Online</h2>
+   <p>Desafía a otra persona en tiempo real. Crea una sala, comparte el código y juega desde otro dispositivo.</p>
+   <button class="primary play" data-view="michi">Jugar Michi →</button>
+  </article>
+  <article class="game-card">
+   <div class="game-art">💡</div><h2>Luces Fuera</h2>
+   <p>Apaga todas las luces. Cuatro dificultades, pistas, récords y tableros resolubles.</p>
+   <button class="primary play" data-view="lights">Jugar Luces Fuera →</button>
+  </article>
+ </div>
+ <div class="footer">2 juegos disponibles · Arcadia</div>
+</section>
+
+<section class="view" id="michiView">
+ <div class="game-head">
+  <div class="game-title"><span class="mini">❌⭕</span><div><h2>Michi Online</h2><p>Multijugador en tiempo real</p></div></div>
+  <button class="secondary back" data-view="home">← Menú principal</button>
+ </div>
+ <div class="game-shell">
+  <div id="michiSetup" class="michi-layout">
+   <div class="michi-side"><h3>Crear una partida</h3><p>Genera una sala y comparte el código de 6 caracteres con tu oponente.</p><button class="primary" id="createRoom">Crear sala</button></div>
+   <div class="michi-side"><h3>Unirse a una partida</h3><p>Introduce el código que te haya enviado el otro jugador.</p><div class="room-form"><input id="roomInput" maxlength="6" placeholder="ABC123"><div class="room-actions"><button class="secondary" id="joinRoom">Unirse</button></div></div></div>
+   <div class="notice" id="michiNotice" style="grid-column:1/-1">Conectando con el servidor…</div>
+  </div>
+  <div id="michiGame" style="display:none;max-width:700px;margin:auto">
+   <div class="room-code" id="roomCode">------</div>
+   <div class="online" id="onlineStatus">Conectando…</div>
+   <div class="turn" id="michiInfo"></div>
+   <div class="board3" id="michiBoard"></div>
+   <div class="actions"><button class="primary" id="rematch" disabled>Revancha</button><button class="secondary" id="leaveRoom">Salir de la sala</button><button class="secondary" id="copyRoom">Copiar código</button></div>
+   <div class="result" id="michiResult"></div>
+  </div>
+ </div>
+</section>
+
+<section class="view" id="lightsView">
+ <div class="game-head">
+  <div class="game-title"><span class="mini">💡</span><div><h2>Luces Fuera</h2><p>Desafía tu lógica</p></div></div>
+  <button class="secondary back" data-view="home">← Menú principal</button>
+ </div>
+ <div class="game-shell">
+  <div class="lights-controls">
+   <label class="field">Dificultad<select id="difficulty"><option value="easy">Fácil</option><option value="medium">Medio</option><option value="hard">Difícil</option><option value="expert">Experto</option></select></label>
+   <button class="primary" id="newLights">Nuevo juego</button><button class="secondary" id="hintLights">💡 Pista</button><button class="secondary" id="resetLights">↻ Reiniciar</button>
+  </div>
+  <div class="stats"><div class="stat"><b id="moves">0</b><span>Movimientos</span></div><div class="stat"><b id="limit">—</b><span>Límite</span></div><div class="stat"><b id="remaining">0</b><span>Luces encendidas</span></div><div class="stat"><b id="best">—</b><span>Mejor marca</span></div></div>
+  <div class="lights-area"><div class="lights-info" id="lightsInfo"></div><div class="lights" id="lightsBoard"></div><div class="legend">Cada pulsación cambia la casilla elegida y las casillas adyacentes arriba, abajo, izquierda y derecha.</div><div class="actions"><button class="secondary" id="soundBtn">🔊 Sonido: Sí</button></div><div class="result" id="lightsResult"></div><div class="score" id="scoreline"></div></div>
+ </div>
+</section>
+</main>
+</div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+import {getAuth,signInAnonymously,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+import {getDatabase,ref,set,get,update,onValue,runTransaction} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
+
+const firebaseConfig={apiKey:"AIzaSyDmq74BLw4PlUy6BuX9HnsvOeMEoQvN9x8",authDomain:"michi-online-a66e1.firebaseapp.com",databaseURL:"https://michi-online-a66e1-default-rtdb.firebaseio.com",projectId:"michi-online-a66e1",storageBucket:"michi-online-a66e1.firebasestorage.app",messagingSenderId:"667003559125",appId:"1:667003559125:web:f5767fa0b52ec744c4d65c"};
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app);
+const $=id=>document.getElementById(id);
+
+function navigate(name){
+ document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+ $(name==="home"?"homeView":name==="michi"?"michiView":"lightsView").classList.add("active");
+ $("navTag").textContent=name==="home"?"MENÚ PRINCIPAL":name==="michi"?"MICHI ONLINE":"LUCES FUERA";
+ window.location.hash=name;
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>navigate(b.dataset.view)));
+window.addEventListener("hashchange",()=>{const h=location.hash.replace("#","");if(["michi","lights","home"].includes(h))navigate(h)});
+if(["michi","lights"].includes(location.hash.replace("#","")))navigate(location.hash.replace("#",""));
+
+let user=null,roomId=null,myMark=null,roomUnsub=null;
+onAuthStateChanged(auth,u=>{user=u;if(u&&$("michiNotice")){$("michiNotice").textContent="Conexión lista. Puedes crear o unirte a una sala.";$("michiNotice").className="notice success"}});
+signInAnonymously(auth).catch(e=>{$("michiNotice").textContent="No se pudo conectar: "+e.code;$("michiNotice").className="notice error"});
+
+const empty=()=>Array(9).fill("");
+const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+function winner(b){for(const l of lines)if(b[l[0]]&&b[l[0]]===b[l[1]]&&b[l[0]]===b[l[2]])return b[l[0]];return null}
+function roomCode(){return Math.random().toString(36).slice(2,8).toUpperCase()}
+function renderMichi(d){
+ $("roomCode").textContent=roomId||"------";
+ $("onlineStatus").textContent=d.players?.X&&d.players?.O?"🟢 Dos jugadores conectados":"🟡 Esperando al segundo jugador…";
+ $("michiInfo").textContent=d.status==="playing"?(d.players?.X&&d.players?.O?`Turno de ${d.turn} · Tú eres ${myMark}`:"Comparte el código con tu oponente."):"Partida terminada";
+ $("rematch").disabled=d.status==="playing";
+ $("michiResult").textContent=d.status==="won"?`¡Ganó ${d.winner}!`:d.status==="draw"?"¡Empate!":"";
+ $("michiResult").className="result "+(d.status==="won"?"win":"");
+ const board=$("michiBoard");board.innerHTML="";
+ (d.board||empty()).forEach((v,i)=>{const b=document.createElement("button");b.className="cell";b.textContent=v;b.disabled=!!v||d.status!=="playing"||d.turn!==myMark||!d.players?.O;b.setAttribute("aria-label",`Casilla ${i+1}`);b.onclick=()=>play(i);board.appendChild(b)});
+}
+async function createRoom(){
+ if(!user)return;
+ const id=roomCode();roomId=id;myMark="X";
+ const data={board:empty(),turn:"X",status:"playing",winner:null,players:{X:user.uid,O:null},score:{X:0,O:0},moveCount:0,createdAt:Date.now()};
+ try{await set(ref(db,"rooms/"+id),data);openRoom();watchRoom()}catch(e){roomId=null;myMark=null;$("michiNotice").textContent="Error al crear sala: "+e.code;$("michiNotice").className="notice error"}
+}
+async function joinRoom(){
+ if(!user)return;
+ const id=$("roomInput").value.trim().toUpperCase();
+ if(!/^[A-Z0-9]{6}$/.test(id)){$("michiNotice").textContent="El código debe tener 6 caracteres.";$("michiNotice").className="notice error";return}
+ const r=ref(db,"rooms/"+id),snap=await get(r);
+ if(!snap.exists()){$("michiNotice").textContent="No existe esa sala.";$("michiNotice").className="notice error";return}
+ const d=snap.val();if(d.players?.O){$("michiNotice").textContent="La sala ya tiene dos jugadores.";$("michiNotice").className="notice error";return}
+ roomId=id;myMark="O";
+ try{await update(r,{"players/O":user.uid});openRoom();watchRoom()}catch(e){roomId=null;myMark=null;$("michiNotice").textContent="Error al unirse: "+e.code;$("michiNotice").className="notice error"}
+}
+function openRoom(){$("michiSetup").style.display="none";$("michiGame").style.display="block"}
+function watchRoom(){if(roomUnsub)roomUnsub();roomUnsub=onValue(ref(db,"rooms/"+roomId),s=>{if(!s.exists()){leaveRoom(false);return}renderMichi(s.val())})}
+async function play(i){
+ if(!roomId||!myMark)return;
+ try{await runTransaction(ref(db,"rooms/"+roomId),current=>{
+  if(!current||current.status!=="playing"||current.turn!==myMark||!current.players?.O)return;
+  const old=Array.isArray(current.board)?current.board:empty();if(old[i])return;
+  const b=old.slice();b[i]=myMark;const w=winner(b),count=b.filter(Boolean).length,draw=!w&&count===9;
+  return {...current,board:b,moveCount:count,turn:(w||draw)?current.turn:(myMark==="X"?"O":"X"),status:w?"won":draw?"draw":"playing",winner:w?myMark:null};
+ })}catch(e){$("michiResult").textContent="Error: "+e.code}
+}
+async function rematch(){if(!roomId)return;await runTransaction(ref(db,"rooms/"+roomId),d=>d?({...d,board:empty(),turn:"X",status:"playing",winner:null,moveCount:0}):d)}
+async function leaveRoom(){
+ if(roomUnsub){roomUnsub();roomUnsub=null}roomId=null;myMark=null;$("michiGame").style.display="none";$("michiSetup").style.display="grid";$("roomInput").value="";$("michiNotice").textContent="Crea una sala para compartir el código con tu oponente.";$("michiNotice").className="notice";
+}
+$("createRoom").onclick=createRoom;$("joinRoom").onclick=joinRoom;$("rematch").onclick=rematch;$("leaveRoom").onclick=leaveRoom;
+$("roomInput").addEventListener("keydown",e=>{if(e.key==="Enter")joinRoom()});
+$("copyRoom").onclick=async()=>{try{await navigator.clipboard.writeText(roomId);$("copyRoom").textContent="¡Copiado!";setTimeout(()=>$("copyRoom").textContent="Copiar código",1200)}catch{}};
+
+const configs={easy:{label:"Fácil",min:2,max:5,limit:12},medium:{label:"Medio",min:5,max:9,limit:16},hard:{label:"Difícil",min:9,max:13,limit:22},expert:{label:"Experto",min:13,max:18,limit:30}};
+let lights=[],initial=[],moves=0,hintIndex=-1,over=false,sound=true;
+function toggle(i,count=true){const r=Math.floor(i/5),c=i%5;[[r,c],[r-1,c],[r+1,c],[r,c-1],[r,c+1]].forEach(([rr,cc])=>{if(rr>=0&&rr<5&&cc>=0&&cc<5)lights[rr*5+cc]=!lights[rr*5+cc]});if(count)moves++}
+function toggleOn(b,i){const r=Math.floor(i/5),c=i%5;[[r,c],[r-1,c],[r+1,c],[r,c-1],[r,c+1]].forEach(([rr,cc])=>{if(rr>=0&&rr<5&&cc>=0&&cc<5)b[rr*5+cc]=!b[rr*5+cc]})}
+function solve(state){for(let mask=0;mask<32;mask++){let b=state.slice(),seq=[];for(let c=0;c<5;c++)if(mask&(1<<c)){seq.push(c);toggleOn(b,c)}for(let r=1;r<5;r++)for(let c=0;c<5;c++)if(b[(r-1)*5+c]){let i=r*5+c;seq.push(i);toggleOn(b,i)}if(b.every(v=>!v))return seq}return[]}
+function best(){try{const x=localStorage.getItem("arcadia_lights_"+$("difficulty").value);return x===null?null:Number(x)}catch{return null}}
+function saveBest(n){try{localStorage.setItem("arcadia_lights_"+$("difficulty").value,String(n))}catch{}}
+function newLights(){const c=configs[$("difficulty").value];lights=Array(25).fill(false);const n=c.min+Math.floor(Math.random()*(c.max-c.min+1)),s=new Set();while(s.size<n)s.add(Math.floor(Math.random()*25));s.forEach(i=>toggle(i,false));initial=lights.slice();moves=0;hintIndex=-1;over=false;$("lightsResult").textContent="";$("lightsResult").className="result";renderLights()}
+function renderLights(){const board=$("lightsBoard");board.innerHTML="";lights.forEach((on,i)=>{const b=document.createElement("button");b.className="light"+(on?" on":"")+(i===hintIndex?" hintcell":"");b.setAttribute("aria-label",`Casilla ${i+1}: ${on?"encendida":"apagada"}`);b.onclick=()=>pressLight(i);board.appendChild(b)});const c=configs[$("difficulty").value],be=best();$("moves").textContent=moves;$("limit").textContent=c.limit;$("remaining").textContent=lights.filter(Boolean).length;$("best").textContent=be??"—";$("lightsInfo").textContent=over?"Partida terminada":`${c.label} · Apaga todas las luces`;$("scoreline").textContent=`Pista usada: ${hintIndex>=0?"Sí":"No"} · Mejor marca: ${be??"sin récord"}`}
+function pressLight(i){if(over)return;hintIndex=-1;toggle(i);if(lights.every(v=>!v)){over=true;const b=best();if(b===null||moves<b)saveBest(moves);$("lightsResult").className="result win";$("lightsResult").textContent=`¡Excelente! Todas las luces están apagadas en ${moves} movimientos.`}else if(moves>=configs[$("difficulty").value].limit){over=true;$("lightsResult").textContent="Se alcanzó el límite de movimientos. Inténtalo de nuevo."}renderLights()}
+function hint(){if(over)return;const s=solve(lights);hintIndex=s.length?s[0]:-1;$("lightsResult").textContent=hintIndex>=0?`Pista: prueba con la casilla ${hintIndex+1}.`:"No hay pista disponible.";renderLights()}
+$("newLights").onclick=newLights;$("resetLights").onclick=()=>{lights=initial.slice();moves=0;hintIndex=-1;over=false;$("lightsResult").textContent="";renderLights()};$("hintLights").onclick=hint;$("difficulty").onchange=newLights;$("soundBtn").onclick=()=>{sound=!sound;$("soundBtn").textContent=`${sound?"🔊":"🔇"} Sonido: ${sound?"Sí":"No"}`};
+newLights();
+</script>
+</body>
+</html>
