@@ -1,383 +1,207 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#071b4d">
-<title>Luces Afuera — Juego</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Michi Online</title>
+<meta name="theme-color" content="#071a43">
 <style>
-:root{
-  --bg1:#020817; --bg2:#071f58; --panel:rgba(9,24,63,.78);
-  --line:rgba(255,255,255,.12); --text:#f7f9ff; --muted:#aebbd8;
-  --accent:#ffd83d; --accent2:#55a8ff; --danger:#ff6685; --good:#67e8a5;
-  --cell-off:#132653; --cell-off2:#0b1939;
-  --shadow:0 22px 60px rgba(0,0,0,.42);
-}
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text)}
-body{
-  background:
-    radial-gradient(circle at 50% -10%,#174caa 0,transparent 38%),
-    radial-gradient(circle at 10% 90%,#102a68 0,transparent 35%),
-    linear-gradient(145deg,var(--bg1),var(--bg2));
-  display:flex;justify-content:center;padding:24px 14px 36px;
-}
-.app{width:min(920px,100%)}
-header{text-align:center;margin:8px 0 18px}
-.badge{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.06);color:#cbd8f5;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
-h1{font-size:clamp(38px,8vw,70px);line-height:.95;margin:14px 0 8px;letter-spacing:.035em;font-weight:950;text-shadow:0 5px 28px rgba(90,145,255,.22)}
-.subtitle{color:var(--muted);margin:0;font-size:15px}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:26px;box-shadow:var(--shadow);backdrop-filter:blur(14px);overflow:hidden}
-.topbar{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center;padding:18px 20px;border-bottom:1px solid var(--line)}
-.stat{text-align:center;min-width:100px}
-.stat .label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.13em;color:#91a4c9;font-weight:800}
-.stat .value{font-size:24px;font-weight:900;margin-top:2px}
-.stat.left{text-align:left}.stat.right{text-align:right}
-.difficulty{display:flex;gap:5px;padding:4px;background:rgba(0,0,0,.2);border-radius:13px}
-.diff{border:0;background:transparent;color:#aebbd8;font-weight:850;padding:10px 12px;border-radius:10px;cursor:pointer;transition:.18s;font-size:13px}
-.diff:hover{color:white;background:rgba(255,255,255,.06)}
-.diff.active{background:#fff;color:#071b4d;box-shadow:0 4px 16px rgba(0,0,0,.18)}
-.game-area{padding:24px 20px 26px}
-.status{text-align:center;margin-bottom:17px}
-.status-title{font-weight:900;font-size:19px}
-.status-help{font-size:13px;color:var(--muted);margin-top:4px}
-.board-wrap{display:flex;justify-content:center}
-.board{
-  width:min(82vw,560px); aspect-ratio:1;
-  display:grid;grid-template-columns:repeat(5,1fr);gap:9px;padding:10px;
-  border-radius:22px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08);
-}
-.cell{
-  border:0;border-radius:15px;background:linear-gradient(145deg,var(--cell-off),var(--cell-off2));
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 5px 14px rgba(0,0,0,.2);
-  cursor:pointer;position:relative;display:grid;place-items:center;transition:transform .11s,filter .18s,background .2s,box-shadow .2s;
-  min-width:0;touch-action:manipulation;
-}
-.cell:hover{transform:translateY(-2px);filter:brightness(1.12)}
-.cell:active{transform:scale(.95)}
-.cell:focus-visible{outline:3px solid var(--accent2);outline-offset:3px}
-.bulb{width:42%;aspect-ratio:1;border-radius:50%;position:relative;background:#223766;box-shadow:inset 0 -8px 14px rgba(0,0,0,.22)}
-.bulb:before{content:"";position:absolute;left:30%;top:64%;width:40%;height:25%;border-radius:3px 3px 7px 7px;background:#172a52}
-.bulb:after{content:"";position:absolute;left:39%;top:75%;width:22%;height:8%;background:#0b1937;border-radius:5px}
-.cell.on{
-  background:linear-gradient(145deg,#f5f7ff,#cdd8ff);
-  box-shadow:0 0 25px rgba(255,216,61,.20),inset 0 1px 0 rgba(255,255,255,.85);
-}
-.cell.on .bulb{
-  background:#ffe45a;
-  box-shadow:0 0 12px #ffe45a,0 0 34px rgba(255,216,61,.8),inset 0 -7px 8px rgba(202,142,0,.22);
-}
-.cell.on .bulb:before{background:#e0b321}
-.cell.on .bulb:after{background:#b1840d}
-.cell.hint{animation:hint 1.1s ease-in-out 2}
-@keyframes hint{50%{transform:scale(1.06);box-shadow:0 0 0 5px rgba(85,168,255,.28),0 0 35px rgba(85,168,255,.55)}}
-.controls{display:flex;justify-content:center;flex-wrap:wrap;gap:9px;margin-top:20px}
-button.action{
-  border:1px solid var(--line);border-radius:13px;padding:11px 16px;background:rgba(255,255,255,.07);color:white;font-weight:850;cursor:pointer;transition:.18s;
-}
-button.action:hover{background:rgba(255,255,255,.12);transform:translateY(-1px)}
-button.action.primary{background:var(--accent);border-color:transparent;color:#081631}
-button.action.primary:hover{filter:brightness(1.06)}
-.legend{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin-top:15px;color:#aebbd8;font-size:12px}
-.legend span{display:flex;align-items:center;gap:6px}.dot{width:9px;height:9px;border-radius:50%;background:#1a315f}.dot.on{background:#ffe45a;box-shadow:0 0 8px #ffe45a}
-.footer{padding:15px 20px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;color:#8295bb;font-size:11px}
-.overlay{position:fixed;inset:0;background:rgba(1,6,20,.76);backdrop-filter:blur(8px);display:none;place-items:center;padding:20px;z-index:20}
-.overlay.show{display:grid}
-.modal{width:min(430px,100%);background:linear-gradient(160deg,#112b62,#081936);border:1px solid rgba(255,255,255,.14);border-radius:25px;padding:30px;text-align:center;box-shadow:0 30px 90px rgba(0,0,0,.6);animation:pop .25s ease}
-@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
-.trophy{font-size:54px}.modal h2{font-size:32px;margin:8px 0}.modal p{color:#b9c7e5;line-height:1.5}.result{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:20px 0}.result div{padding:13px;background:rgba(255,255,255,.06);border-radius:13px}.result b{display:block;font-size:21px}.result small{color:#93a7cc}
-@media(max-width:650px){
-  .topbar{grid-template-columns:1fr 1fr}.difficulty{grid-column:1/-1;grid-row:2;justify-content:center}
-  .stat.left,.stat.right{text-align:center}.board{gap:6px;padding:7px;border-radius:17px}.cell{border-radius:11px}
-}
+:root{--bg:#06132f;--panel:#0d2047;--panel2:#102957;--text:#f7f9ff;--muted:#a9b9d7;--accent:#ffd83d;--x:#65a8ff;--o:#ff7c9b;--ok:#6ee7ad;--line:rgba(255,255,255,.12)}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 50% -10%,#174caa,transparent 38%),linear-gradient(145deg,#020817,#082158);display:flex;justify-content:center;padding:22px 14px}
+.app{width:min(780px,100%)}header{text-align:center;margin:8px 0 18px}h1{font-size:clamp(42px,9vw,70px);line-height:1;margin:10px 0 6px;font-weight:950;letter-spacing:.03em}header p{margin:0;color:var(--muted)}
+.panel{background:rgba(13,32,71,.9);border:1px solid var(--line);border-radius:26px;box-shadow:0 25px 70px #0008;overflow:hidden}
+.setup{padding:22px}.setup h2{margin:0 0 5px}.setup p{color:var(--muted);margin:0 0 18px}
+.tabs{display:flex;gap:6px;background:#071633;padding:5px;border-radius:14px;margin-bottom:15px}.tab{flex:1;padding:11px;border:0;border-radius:10px;background:transparent;color:var(--muted);font-weight:850;cursor:pointer}.tab.active{background:#fff;color:#071633}
+.row{display:flex;gap:9px;flex-wrap:wrap}.input{flex:1;min-width:180px;padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:#071633;color:#fff;font-size:16px;outline:none}.input:focus{border-color:var(--x);box-shadow:0 0 0 3px #65a8ff22}
+.btn{padding:13px 17px;border-radius:12px;border:1px solid var(--line);background:#ffffff0d;color:#fff;font-weight:900;cursor:pointer}.btn:hover{filter:brightness(1.1)}.btn.primary{background:var(--accent);color:#071633;border-color:transparent}.btn:disabled{opacity:.5;cursor:not-allowed}
+.message{margin-top:13px;min-height:22px;color:var(--muted);font-size:14px}.message.error{color:#ff9eb1}.message.good{color:var(--ok)}
+.game{display:none}.game.show{display:block}.game-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:15px}.room{font-weight:950;letter-spacing:.08em}.copy{font-size:12px;color:var(--muted);margin-top:3px}.players{display:flex;gap:7px}.player{padding:8px 11px;border-radius:10px;background:#ffffff08;border:1px solid var(--line);font-weight:850;font-size:13px}.player.x{color:var(--x)}.player.o{color:var(--o)}
+.score{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;padding:18px 20px}.scorebox{text-align:center;padding:12px;border-radius:14px;background:#ffffff08}.scorebox b{font-size:28px}.scorebox small{display:block;color:var(--muted)}.vs{color:#8296bc;font-weight:950}
+.turn{text-align:center;padding:0 20px 15px;font-weight:900}.turn span{color:var(--accent)}
+.board-wrap{display:flex;justify-content:center;padding:0 20px 22px}.board{width:min(90vw,440px);aspect-ratio:1;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.cell{border:0;border-radius:17px;background:linear-gradient(145deg,#142e5e,#0a1b3e);box-shadow:inset 0 1px #ffffff0b,0 7px 18px #0005;color:#fff;font-size:clamp(52px,15vw,92px);font-weight:950;cursor:pointer;transition:.12s}.cell:hover:not(:disabled){transform:translateY(-2px);background:#18366d}.cell:active:not(:disabled){transform:scale(.96)}.cell:disabled{cursor:default}.cell.x{color:var(--x)}.cell.o{color:var(--o)}.cell.win{box-shadow:0 0 0 4px var(--accent),0 0 35px #ffd83d55}
+.actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;padding:0 20px 22px}.info{padding:15px 20px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:13px}
+.modal{display:none;position:fixed;inset:0;background:#020817cc;backdrop-filter:blur(7px);place-items:center;padding:20px;z-index:5}.modal.show{display:grid}.modalbox{width:min(390px,100%);text-align:center;background:linear-gradient(150deg,#12326b,#081936);border:1px solid var(--line);border-radius:24px;padding:28px;box-shadow:0 30px 80px #0008}.modalbox .emoji{font-size:52px}.modalbox h2{margin:8px 0;font-size:30px}.modalbox p{color:var(--muted);line-height:1.5}
+.hidden{display:none!important}
+@media(max-width:560px){.game-head{align-items:flex-start;flex-direction:column}.players{width:100%}.player{flex:1;text-align:center}}
 </style>
 </head>
 <body>
 <main class="app">
-  <header>
-    <div class="badge">💡 Juego de lógica</div>
-    <h1>LUCES AFUERA</h1>
-    <p class="subtitle">Apaga todas las luces. Cada movimiento cambia una cruz.</p>
-  </header>
+<header><div>🎮</div><h1>MICHI ONLINE</h1><p>Juega contra otra persona desde otro dispositivo.</p></header>
 
-  <section class="panel">
-    <div class="topbar">
-      <div class="stat left"><span class="label">Movimientos</span><span class="value" id="moves">0 / 12</span></div>
-      <div class="difficulty" aria-label="Dificultad">
-        <button class="diff active" data-level="easy">Fácil</button>
-        <button class="diff" data-level="medium">Medio</button>
-        <button class="diff" data-level="hard">Difícil</button>
-        <button class="diff" data-level="expert">Experto</button>
-      </div>
-      <div class="stat right"><span class="label">Récord</span><span class="value" id="best">—</span></div>
+<section class="panel">
+  <div class="setup" id="setup">
+    <h2>Crear o unirse a una partida</h2>
+    <p>Comparte el código de sala con tu oponente.</p>
+    <div class="tabs">
+      <button class="tab active" id="createTab" type="button">Crear partida</button>
+      <button class="tab" id="joinTab" type="button">Unirse</button>
     </div>
-
-    <div class="game-area">
-      <div class="status">
-        <div class="status-title" id="statusTitle">¡Apaga todas las luces!</div>
-        <div class="status-help">Al tocar una casilla, cambia esa casilla y sus vecinas arriba, abajo, izquierda y derecha.</div>
-      </div>
-
-      <div class="board-wrap">
-        <div class="board" id="board" role="grid" aria-label="Tablero de luces"></div>
-      </div>
-
-      <div class="controls">
-        <button class="action primary" id="newGame">↻ Nueva partida</button>
-        <button class="action" id="hint">💡 Pista</button>
-        <button class="action" id="reset">↶ Reiniciar</button>
-      </div>
-
-      <div class="legend">
-        <span><i class="dot on"></i> Encendida</span>
-        <span><i class="dot"></i> Apagada</span>
-        <span>⌨️ También puedes usar el teclado</span>
-      </div>
+    <div id="createBox">
+      <div class="row"><button class="btn primary" id="createBtn" type="button">✨ Crear sala</button></div>
     </div>
-
-    <div class="footer">
-      <span>5 × 5 · Sin anuncios · Funciona sin internet</span>
-      <span>Progreso y récord guardados en este dispositivo</span>
+    <div id="joinBox" class="hidden">
+      <div class="row"><input class="input" id="roomInput" maxlength="6" placeholder="Código, ej. A7K2Q9" autocomplete="off"><button class="btn primary" id="joinBtn" type="button">Entrar</button></div>
     </div>
-  </section>
+    <div class="message" id="message">Conectando con el servidor…</div>
+  </div>
+
+  <div class="game" id="game">
+    <div class="game-head">
+      <div><div class="room">SALA <span id="roomCode">------</span></div><div class="copy">Comparte este código con tu oponente.</div></div>
+      <div class="players"><div class="player x">❌ <span id="pX">Esperando…</span></div><div class="player o">⭕ <span id="pO">Esperando…</span></div></div>
+    </div>
+    <div class="score">
+      <div class="scorebox"><b id="scoreX">0</b><small>❌ X</small></div><div class="vs">VS</div><div class="scorebox"><b id="scoreO">0</b><small>⭕ O</small></div>
+    </div>
+    <div class="turn" id="turn">Esperando al oponente…</div>
+    <div class="board" id="board"></div>
+    <div class="actions"><button class="btn" id="newRoundBtn" type="button" disabled>🔄 Nueva ronda</button><button class="btn" id="leaveBtn" type="button">🚪 Salir</button></div>
+    <div class="info" id="connection">● Conectado</div>
+  </div>
+</section>
 </main>
 
-<div class="overlay" id="overlay">
-  <div class="modal">
-    <div class="trophy">🏆</div>
-    <h2>¡Excelente!</h2>
-    <p id="winText">Has apagado todas las luces.</p>
-    <div class="result">
-      <div><b id="winMoves">0</b><small>movimientos</small></div>
-      <div><b id="winBest">—</b><small>mejor marca</small></div>
-    </div>
-    <button class="action primary" id="nextGame">Siguiente partida</button>
-  </div>
-</div>
+<div class="modal" id="modal"><div class="modalbox"><div class="emoji" id="modalEmoji">🏆</div><h2 id="modalTitle">¡Ganaste!</h2><p id="modalText"></p><button class="btn primary" id="modalBtn" type="button">Continuar</button></div></div>
 
-<script>
-(() => {
-  "use strict";
+<script type="module">
+/*
+  ==========================================================
+  CONFIGURACIÓN FIREBASE
+  ==========================================================
+  1) Crea un proyecto en Firebase.
+  2) Registra una aplicación Web.
+  3) Crea Realtime Database.
+  4) Activa Authentication > Sign-in method > Anonymous.
+  5) Copia aquí el objeto firebaseConfig de tu proyecto.
+*/
+const firebaseConfig = {
+  apiKey: "AIzaSyDmq74BLw4PlUy6BuX9HnsvOeMEoQvN9x8",
+  authDomain: "michi-online-a66e1.firebaseapp.com",
+  databaseURL: "https://michi-online-a66e1-default-rtdb.firebaseio.com",
+  projectId: "michi-online-a66e1",
+  storageBucket: "michi-online-a66e1.firebasestorage.app",
+  messagingSenderId: "667003559125",
+  appId: "1:667003559125:web:f5767fa0b52ec744c4d65c"
+};
 
-  const N = 5;
-  const levels = {
-    easy:   {name:"Fácil",   max:12, minOptimal:3,  maxOptimal:8},
-    medium: {name:"Medio",   max:14, minOptimal:8,  maxOptimal:12},
-    hard:   {name:"Difícil", max:18, minOptimal:12, maxOptimal:18},
-    expert: {name:"Experto", max:25, minOptimal:18, maxOptimal:25}
-  };
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+import { getDatabase, ref, set, get, update, onValue, runTransaction, onDisconnect } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
-  let level = "easy";
-  let board = Array(N*N).fill(false);
-  let initial = board.slice();
-  let moves = 0;
-  let optimal = null;
-  let locked = false;
+const $=id=>document.getElementById(id);
+const setup=$("setup"), game=$("game"), msg=$("message"), boardEl=$("board");
+let db,auth,user,roomId=null,myMark=null,roomData=null,unsub=null;
 
-  const $ = id => document.getElementById(id);
-  const boardEl = $("board");
-
-  function idx(r,c){ return r*N+c; }
-
-  function toggleCell(r,c){
-    if(r<0 || r>=N || c<0 || c>=N) return;
-    board[idx(r,c)] = !board[idx(r,c)];
-  }
-
-  function press(r,c){
-    toggleCell(r,c);
-    toggleCell(r-1,c);
-    toggleCell(r+1,c);
-    toggleCell(r,c-1);
-    toggleCell(r,c+1);
-  }
-
-  function pressIndex(i){ press(Math.floor(i/N), i%N); }
-
-  function render(){
-    boardEl.innerHTML = "";
-    board.forEach((on,i) => {
-      const r=Math.floor(i/N), c=i%N;
-      const b=document.createElement("button");
-      b.className="cell"+(on?" on":"");
-      b.setAttribute("role","gridcell");
-      b.setAttribute("aria-label",`Fila ${r+1}, columna ${c+1}: ${on?"encendida":"apagada"}`);
-      b.innerHTML='<span class="bulb"></span>';
-      b.addEventListener("click",()=>move(i));
-      boardEl.appendChild(b);
-    });
-    $("moves").textContent = `${moves} / ${levels[level].max}`;
-  }
-
-  // Lights Out solver: enumerate all 2^5 possibilities for the first row.
-  function solve(start){
-    let best = null;
-    for(let mask=0; mask<(1<<N); mask++){
-      let a=start.slice(), presses=[];
-      for(let r=0;r<N;r++) presses.push(0);
-
-      presses[0]=mask;
-      for(let c=0;c<N;c++) if(mask&(1<<c)) flipArray(a,0,c);
-
-      for(let r=1;r<N;r++){
-        for(let c=0;c<N;c++){
-          if(a[idx(r-1,c)]) {
-            presses[r] |= (1<<c);
-            flipArray(a,r,c);
-          }
-        }
-      }
-
-      let ok=true;
-      for(let c=0;c<N;c++) if(a[idx(N-1,c)]) {ok=false;break;}
-      if(ok){
-        const list=[];
-        for(let r=0;r<N;r++) for(let c=0;c<N;c++) if(presses[r]&(1<<c)) list.push(idx(r,c));
-        if(best===null || list.length<best.length) best=list;
-      }
-    }
-    return best;
-  }
-
-  function flipArray(a,r,c){
-    [[r,c],[r-1,c],[r+1,c],[r,c-1],[r,c+1]].forEach(([rr,cc])=>{
-      if(rr>=0&&rr<N&&cc>=0&&cc<N) a[idx(rr,cc)] = !a[idx(rr,cc)];
-    });
-  }
-
-  // Generate a solvable board with a controlled optimal difficulty.
-  function generate(){
-    const cfg=levels[level];
-    for(let attempt=0;attempt<10000;attempt++){
-      let a=Array(N*N).fill(false);
-      const scrambleCount = cfg.maxOptimal + 3;
-      for(let k=0;k<scrambleCount;k++){
-        pressArray(a, Math.floor(Math.random()*25));
-      }
-      const sol=solve(a);
-      if(sol && sol.length>=cfg.minOptimal && sol.length<=cfg.maxOptimal){
-        return {board:a, solution:sol};
-      }
-    }
-    // Safe fallback: random board, guaranteed solvable by construction.
-    let a=Array(N*N).fill(false);
-    for(let k=0;k<Math.max(3,cfg.minOptimal);k++) pressArray(a, Math.floor(Math.random()*25));
-    return {board:a, solution:solve(a)||[]};
-  }
-
-  function pressArray(a,i){
-    const r=Math.floor(i/N), c=i%N;
-    [[r,c],[r-1,c],[r+1,c],[r,c-1],[r,c+1]].forEach(([rr,cc])=>{
-      if(rr>=0&&rr<N&&cc>=0&&cc<N) a[idx(rr,cc)] = !a[idx(rr,cc)];
-    });
-  }
-
-  function newGame(){
-    locked=false; moves=0; hideOverlay();
-    const g=generate();
-    board=g.board.slice();
-    initial=board.slice();
-    optimal=g.solution;
-    $("statusTitle").textContent = "¡Apaga todas las luces!";
-    render();
-  }
-
-  function move(i){
-    if(locked || moves>=levels[level].max) return;
-    pressIndex(i); moves++; render();
-    beep(440,0.045);
-    if(board.every(v=>!v)){
-      locked=true;
-      const bestKey=`luces-best-${level}`;
-      const old=Number(localStorage.getItem(bestKey)||Infinity);
-      const best=Math.min(old,moves);
-      localStorage.setItem(bestKey,String(best));
-      $("best").textContent=best;
-      $("winMoves").textContent=moves;
-      $("winBest").textContent=best;
-      $("winText").textContent = moves===optimal.length
-        ? `¡Resolviste el tablero con la solución óptima de ${optimal.length} movimientos!`
-        : `¡Muy bien! La solución óptima era de ${optimal.length} movimientos.`;
-      setTimeout(()=>{showOverlay(); beep(880,.09); setTimeout(()=>beep(1175,.12),100)},180);
-      return;
-    }
-    if(moves>=levels[level].max){
-      $("statusTitle").textContent="Se acabaron los movimientos";
-      beep(180,.12);
-    } else if(levels[level].max-moves<=2){
-      $("statusTitle").textContent=`¡Cuidado! Te quedan ${levels[level].max-moves}`;
-    }
-  }
-
-  function hint(){
-    if(locked || !optimal || !optimal.length) return;
-    // Recalculate from current board so the hint always matches the current position.
-    const sol=solve(board);
-    if(!sol || !sol.length) return;
-    const cell=sol[0];
-    const el=boardEl.children[cell];
-    el.classList.remove("hint"); void el.offsetWidth; el.classList.add("hint");
-    $("statusTitle").textContent="💡 Pista: prueba la casilla iluminada";
-    setTimeout(()=>el.classList.remove("hint"),2400);
-    beep(700,.06);
-  }
-
-  function reset(){
-    if(locked) return;
-    board=initial.slice(); moves=0; $("statusTitle").textContent="¡Apaga todas las luces!"; render(); beep(330,.05);
-  }
-
-  function showOverlay(){ $("overlay").classList.add("show"); }
-  function hideOverlay(){ $("overlay").classList.remove("show"); }
-
-  function loadBest(){
-    const b=localStorage.getItem(`luces-best-${level}`);
-    $("best").textContent=b||"—";
-  }
-
-  function setLevel(l){
-    level=l;
-    document.querySelectorAll(".diff").forEach(x=>x.classList.toggle("active",x.dataset.level===l));
-    loadBest(); newGame();
-  }
-
-  function beep(freq,dur){
-    try{
-      const C=window.AudioContext||window.webkitAudioContext;
-      if(!C) return;
-      const ctx=new C(), o=ctx.createOscillator(), g=ctx.createGain();
-      o.frequency.value=freq;o.type="sine";g.gain.setValueAtTime(.045,ctx.currentTime);
-      g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+dur);
-      o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+dur);
-    }catch(e){}
-  }
-
-  document.querySelectorAll(".diff").forEach(b=>b.addEventListener("click",()=>setLevel(b.dataset.level)));
-  $("newGame").addEventListener("click",newGame);
-  $("nextGame").addEventListener("click",newGame);
-  $("hint").addEventListener("click",hint);
-  $("reset").addEventListener("click",reset);
-  $("overlay").addEventListener("click",e=>{if(e.target.id==="overlay")hideOverlay()});
-
-  // Keyboard: arrows move focus; Enter/Space presses the selected cell.
-  let focusIndex=0;
-  document.addEventListener("keydown",e=>{
-    if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)){
-      e.preventDefault();
-      const r=Math.floor(focusIndex/N),c=focusIndex%N;
-      if(e.key==="ArrowUp") focusIndex=idx(Math.max(0,r-1),c);
-      if(e.key==="ArrowDown") focusIndex=idx(Math.min(N-1,r+1),c);
-      if(e.key==="ArrowLeft") focusIndex=idx(r,Math.max(0,c-1));
-      if(e.key==="ArrowRight") focusIndex=idx(r,Math.min(N-1,c+1));
-      boardEl.children[focusIndex]?.focus();
-    }
-    if((e.key==="Enter"||e.key===" ") && document.activeElement?.classList.contains("cell")){
-      e.preventDefault(); move(Number([...boardEl.children].indexOf(document.activeElement)));
-    }
+function setMsg(t,type=""){msg.textContent=t;msg.className="message "+type}
+function code(){return Math.random().toString(36).slice(2,8).toUpperCase()}
+function emptyBoard(){return ["","","","","","","","",""]}
+function winner(b){const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];for(const l of lines)if(b[l[0]]&&b[l[0]]===b[l[1]]&&b[l[1]]===b[l[2]])return l;return null}
+function draw(b){return b.every(Boolean)}
+function render(){
+  if(!roomData)return;
+  $("roomCode").textContent=roomId;
+  $("pX").textContent=roomData.players?.X?"Jugador":"Esperando…";
+  $("pO").textContent=roomData.players?.O?"Jugador":"Esperando…";
+  $("scoreX").textContent=roomData.score?.X||0;
+  $("scoreO").textContent=roomData.score?.O||0;
+  const b=roomData.board||emptyBoard(), w=winner(b);
+  boardEl.innerHTML="";
+  b.forEach((v,i)=>{
+    const button=document.createElement("button");
+    button.type="button";button.className="cell "+(v.toLowerCase());
+    button.textContent=v==="X"?"×":v==="O"?"○":"";
+    button.disabled=!!v || !roomData.players?.X || !roomData.players?.O || roomData.status!=="playing" || roomData.turn!==myMark;
+    if(w?.includes(i))button.classList.add("win");
+    button.setAttribute("aria-label",`Casilla ${i+1} ${v?`ocupada por ${v}`:"vacía"}`);
+    button.addEventListener("click",()=>play(i));
+    boardEl.appendChild(button);
   });
+  $("newRoundBtn").disabled=roomData.status==="playing" || !roomData.players?.X || !roomData.players?.O;
+  if(!roomData.players?.X || !roomData.players?.O) $("turn").innerHTML="⏳ Comparte el código <span>"+roomId+"</span> y espera al oponente.";
+  else if(roomData.status==="playing") $("turn").innerHTML=roomData.turn===myMark?`👉 Es tu turno (${myMark})`:`⏳ Turno del oponente (${roomData.turn})`;
+  else if(roomData.status==="won") $("turn").innerHTML=`🏆 Ganó ${roomData.winner}`;
+  else $("turn").innerHTML="🤝 ¡Empate!";
+}
+async function play(i){
+  if(!roomId||!myMark||!roomData||roomData.status!=="playing"||roomData.turn!==myMark||roomData.board[i])return;
+  const r=ref(db,"rooms/"+roomId);
+  await runTransaction(r,current=>{
+    if(!current||current.status!=="playing"||current.turn!==myMark||current.board[i])return;
+    const b=[...(current.board||emptyBoard())];b[i]=myMark;
+    const w=winner(b);
+    const next=w?"won":draw(b)?"draw":(myMark==="X"?"O":"X");
+    return {...current,board:b,turn:next==="playing"?next:current.turn,status:next,winner:w?myMark:null};
+  });
+}
+async function createRoom(){
+  if(!user)return setMsg("Todavía no hay conexión con Firebase.","error");
+  roomId=code();myMark="X";
+  const data={board:emptyBoard(),turn:"X",status:"playing",winner:null,players:{X:user.uid,O:null},score:{X:0,O:0},createdAt:Date.now()};
+  try{
+    await set(ref(db,"rooms/"+roomId),data);
+    await onDisconnect(ref(db,"rooms/"+roomId+"/players/X")).set(null);
+    subscribe();
+  }catch(e){setMsg("No se pudo crear la sala. Revisa Firebase y las reglas.","error")}
+}
+async function joinRoom(){
+  const id=$("roomInput").value.trim().toUpperCase();
+  if(id.length!==6)return setMsg("Escribe un código de 6 caracteres.","error");
+  try{
+    const snap=await get(ref(db,"rooms/"+id));
+    if(!snap.exists())return setMsg("No existe esa sala.","error");
+    const d=snap.val();
+    if(d.players?.O && d.players.O!==user.uid)return setMsg("La sala ya tiene dos jugadores.","error");
+    roomId=id;myMark="O";
+    await update(ref(db,"rooms/"+id+"/players"),{O:user.uid});
+    await onDisconnect(ref(db,"rooms/"+id+"/players/O")).set(null);
+    subscribe();
+  }catch(e){setMsg("No se pudo entrar. Revisa Firebase y las reglas.","error")}
+}
+function subscribe(){
+  if(unsub)unsub();
+  unsub=onValue(ref(db,"rooms/"+roomId),snap=>{
+    if(!snap.exists()){leaveLocal();setMsg("La sala ya no existe.","error");return}
+    roomData=snap.val();setup.classList.add("hidden");game.classList.add("show");render();
+    $("connection").textContent="● Conectado en tiempo real";
+    const b=roomData.board||emptyBoard(),w=winner(b);
+    if(roomData.status==="won"||roomData.status==="draw")showResult(roomData.status,w,roomData.winner);
+  },err=>{$("connection").textContent="● Error de conexión";setMsg("Error de sincronización: "+err.message,"error")});
+}
+let lastResult="";
+function showResult(status,w,winMark){
+  const key=(roomId||"")+"-"+(roomData.board||[]).join("");
+  if(key===lastResult)return;lastResult=key;
+  if(status==="draw"){ $("modalEmoji").textContent="🤝";$("modalTitle").textContent="¡Empate!";$("modalText").textContent="Nadie se lleva el punto esta ronda."}
+  else if(winMark===myMark){$("modalEmoji").textContent="🏆";$("modalTitle").textContent="¡Ganaste!";$("modalText").textContent="Punto para ti. ¡Vamos por la siguiente ronda!"}
+  else{$("modalEmoji").textContent="😄";$("modalTitle").textContent="¡Ganó tu oponente!";$("modalText").textContent="Buen intento. Puedes remontar en la siguiente."}
+  $("modal").classList.add("show");
+}
+$("modalBtn").addEventListener("click",()=>$("modal").classList.remove("show"));
+async function newRound(){
+  if(!roomId||!roomData||roomData.status==="playing")return;
+  const r=ref(db,"rooms/"+roomId);
+  await runTransaction(r,current=>{
+    if(!current||current.status==="playing")return;
+    const s={...(current.score||{X:0,O:0})};
+    if(current.status==="won"&&current.winner)s[current.winner]=(s[current.winner]||0)+1;
+    return {...current,board:emptyBoard(),turn:"X",status:"playing",winner:null,score:s};
+  });
+  lastResult="";
+  $("modal").classList.remove("show");
+}
+function leaveLocal(){if(unsub)unsub();unsub=null;roomId=null;myMark=null;roomData=null;game.classList.remove("show");setup.classList.remove("hidden");$("modal").classList.remove("show")}
+async function leave(){if(roomId){try{await set(ref(db,"rooms/"+roomId+"/players/"+myMark),null)}catch(e){}}leaveLocal();setMsg("Has salido de la partida.")}
+$("createBtn").addEventListener("click",createRoom);$("joinBtn").addEventListener("click",joinRoom);$("newRoundBtn").addEventListener("click",newRound);$("leaveBtn").addEventListener("click",leave);
+$("createTab").addEventListener("click",()=>{$("createTab").classList.add("active");$("joinTab").classList.remove("active");$("createBox").classList.remove("hidden");$("joinBox").classList.add("hidden")});
+$("joinTab").addEventListener("click",()=>{$("joinTab").classList.add("active");$("createTab").classList.remove("active");$("joinBox").classList.remove("hidden");$("createBox").classList.add("hidden");$("roomInput").focus()});
+$("roomInput").addEventListener("input",e=>e.target.value=e.target.value.replace(/[^a-z0-9]/gi,"").toUpperCase().slice(0,6));
 
-  setLevel("easy");
-})();
+try{
+  const app=initializeApp(firebaseConfig);db=getDatabase(app);auth=getAuth(app);
+  user=(await signInAnonymously(auth)).user;
+  setMsg("Listo. Crea una sala o únete con un código.","good");
+}catch(e){console.error(e);setMsg("Falta configurar Firebase en este archivo. Busca firebaseConfig dentro del HTML.","error")}
 </script>
 </body>
 </html>
