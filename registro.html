@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Crear cuenta · Arcadia</title>
+<link rel="stylesheet" href="css/global.css">
+</head>
+<body>
+<header class="shell topbar">
+  <a class="logo" href="index.html">ARC<span>ADIA</span></a>
+</header>
+
+<main class="shell auth-wrap">
+<section class="card auth-card">
+  <h1>Crear cuenta</h1>
+  <p class="muted">Crea tu cuenta para guardar tu nivel y progreso.</p>
+
+  <form class="form" id="form">
+    <div><label>Nombre de jugador</label><input id="name" maxlength="24" required></div>
+    <div><label>Correo electrónico</label><input id="email" type="email" autocomplete="email" required></div>
+    <div><label>Contraseña</label><input id="password" type="password" autocomplete="new-password" minlength="6" required></div>
+    <button class="btn primary" id="submitBtn" type="submit">Crear cuenta</button>
+    <div class="msg" id="msg"></div>
+  </form>
+
+  <p class="muted">¿Ya tienes cuenta? <a href="login.html">Iniciar sesión</a></p>
+</section>
+</main>
+
+<script type="module">
+import {register,authErrorMessage} from "./js/auth.js";
+
+const form=document.querySelector("#form");
+const name=document.querySelector("#name");
+const email=document.querySelector("#email");
+const password=document.querySelector("#password");
+const msg=document.querySelector("#msg");
+const submitBtn=document.querySelector("#submitBtn");
+
+form.addEventListener("submit",async(e)=>{
+  e.preventDefault();
+  msg.className="msg";
+  msg.textContent="Creando cuenta en Firebase…";
+  submitBtn.disabled=true;
+
+  try{
+    await register(email.value,password.value,name.value);
+    msg.className="msg good";
+    msg.textContent="✅ ¡Cuenta creada correctamente! Entrando a Arcadia…";
+    setTimeout(()=>location.href="index.html",700);
+  }catch(error){
+    msg.className="msg error";
+    msg.textContent="❌ "+authErrorMessage(error);
+    submitBtn.disabled=false;
+    console.error(error);
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Iniciar sesión · Arcadia</title>
+<link rel="stylesheet" href="css/global.css">
+</head>
+<body>
+<header class="shell topbar">
+  <a class="logo" href="index.html">ARC<span>ADIA</span></a>
+</header>
+
+<main class="shell auth-wrap">
+<section class="card auth-card">
+  <h1>Iniciar sesión</h1>
+  <p class="muted">Entra a tu cuenta y continúa tu progreso.</p>
+
+  <form class="form" id="form">
+    <div><label>Correo electrónico</label><input id="email" type="email" autocomplete="email" required></div>
+    <div><label>Contraseña</label><input id="password" type="password" autocomplete="current-password" required></div>
+    <button class="btn primary" id="submitBtn" type="submit">Iniciar sesión</button>
+    <button type="button" class="btn" id="guest">Entrar como invitado</button>
+    <div class="msg" id="msg"></div>
+  </form>
+
+  <p class="muted">¿No tienes cuenta? <a href="registro.html">Crear una cuenta</a></p>
+</section>
+</main>
+
+<script type="module">
+import {login,guest,authErrorMessage} from "./js/auth.js";
+
+const form=document.querySelector("#form");
+const email=document.querySelector("#email");
+const password=document.querySelector("#password");
+const msg=document.querySelector("#msg");
+const submitBtn=document.querySelector("#submitBtn");
+const guestBtn=document.querySelector("#guest");
+
+form.addEventListener("submit",async(e)=>{
+  e.preventDefault();
+  msg.className="msg";
+  msg.textContent="Conectando con Firebase…";
+  submitBtn.disabled=true;
+
+  try{
+    await login(email.value,password.value);
+    msg.className="msg good";
+    msg.textContent="✅ Inicio de sesión correcto. Entrando…";
+    setTimeout(()=>location.href="index.html",500);
+  }catch(error){
+    msg.className="msg error";
+    msg.textContent="❌ "+authErrorMessage(error);
+    submitBtn.disabled=false;
+    console.error(error);
+  }
+});
+
+guestBtn.addEventListener("click",async()=>{
+  msg.className="msg";
+  msg.textContent="Entrando como invitado…";
+  guestBtn.disabled=true;
+
+  try{
+    await guest();
+    msg.className="msg good";
+    msg.textContent="✅ Sesión de invitado iniciada.";
+    setTimeout(()=>location.href="index.html",500);
+  }catch(error){
+    msg.className="msg error";
+    msg.textContent="❌ "+authErrorMessage(error);
+    guestBtn.disabled=false;
+    console.error(error);
+  }
+});
+</script>
+</body>
+</html>

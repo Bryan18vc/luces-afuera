@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Arcadia — Juegos</title><link rel="stylesheet" href="css/global.css">
+</head>
+<body>
+<header class="shell topbar">
+  <a class="logo" href="index.html">ARC<span>ADIA</span></a>
+  <nav class="nav" id="nav">
+    <a href="login.html">Iniciar sesión</a>
+    <a class="btn primary" href="registro.html">Crear cuenta</a>
+  </nav>
+</header>
+<main class="shell">
+  <section class="hero">
+    <p class="muted">TU SALA DE JUEGOS</p>
+    <h1>Juega.<br>Compite.<br><span style="color:var(--accent)">Sube de nivel.</span></h1>
+    <p>Una plataforma para reunir tus juegos, perfil, experiencia y progreso en un solo lugar.</p>
+    <div class="row" id="heroActions">
+      <a class="btn primary" href="login.html">Iniciar sesión</a>
+      <a class="btn" href="registro.html">Crear cuenta</a>
+    </div>
+  </section>
+  <section class="grid">
+    <article class="card">
+      <div class="game-icon">⭕❌</div><h2>Michi Online</h2>
+      <p class="muted">Crea una sala, comparte el código y juega en tiempo real desde otro dispositivo.</p>
+      <a class="btn primary" href="juegos/michi.html">Jugar Michi</a>
+    </article>
+    <article class="card">
+      <div class="game-icon">💡</div><h2>Luces Afuera</h2>
+      <p class="muted">Resuelve el tablero, supera el límite de movimientos y consigue tu mejor marca.</p>
+      <a class="btn primary" href="juegos/luces-afuera.html">Jugar Luces</a>
+    </article>
+    <article class="card">
+      <div class="game-icon">🧠</div><h2>Próximamente</h2>
+      <p class="muted">Aquí iremos incorporando nuevos juegos sin cargar el código de los demás.</p>
+    </article>
+  </section>
+</main>
+<footer><div class="shell">Arcadia · Plataforma modular</div></footer>
+<script type="module">
+import {watchAuth,ensureProfile,logout} from "./js/auth.js";
+const nav=document.querySelector("#nav"), actions=document.querySelector("#heroActions");
+watchAuth(async user=>{
+  if(user){
+    // Mostrar inmediatamente que hay una sesión activa.
+    // No esperamos a Firestore para actualizar el menú.
+    const displayName = user.displayName || (user.isAnonymous ? "Invitado" : "Jugador");
+    nav.innerHTML=`<a href="perfil.html">👤 ${displayName}</a><button id="logout">Salir</button>`;
+    actions.innerHTML=`<a class="btn primary" href="perfil.html">👤 Mi perfil</a>`;
+
+    document.querySelector("#logout").onclick=async()=>{
+      await logout();
+      location.reload();
+    };
+
+    // Crear/verificar el documento del perfil en segundo plano.
+    ensureProfile(user).catch(err=>console.error("Perfil:",err));
+  }else{
+    nav.innerHTML=`<a href="login.html">Iniciar sesión</a><a class="btn primary" href="registro.html">Crear cuenta</a>`;
+    actions.innerHTML=`<a class="btn primary" href="login.html">Iniciar sesión</a><a class="btn" href="registro.html">Crear cuenta</a>`;
+  }
+});</script>
+</body></html>
