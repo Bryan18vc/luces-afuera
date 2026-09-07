@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mi perfil · Arcadia</title><link rel="stylesheet" href="css/global.css">
+<style>
+.shop-panel{margin-top:20px;padding:22px;border:1px solid rgba(255,255,255,.10);border-radius:22px;background:linear-gradient(145deg,rgba(18,35,58,.92),rgba(13,25,43,.92))}
+.shop-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.shop-kicker{font-size:11px;letter-spacing:.14em;color:#55d9ff;font-weight:900}
+.shop-head h2{margin:5px 0}.wallet{padding:10px 14px;border-radius:12px;background:rgba(255,214,107,.10);color:#ffe39a;white-space:nowrap}
+.hint-inventory{display:flex;align-items:center;gap:12px;margin:15px 0;padding:13px;border-radius:15px;background:rgba(85,217,255,.06);border:1px solid rgba(85,217,255,.14)}
+.hint-icon{font-size:28px}.hint-inventory span{display:block;font-size:12px}.hint-inventory strong{font-size:22px}
+.shop-products{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.shop-product{position:relative;display:flex;flex-direction:column;gap:8px;padding:15px;border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.025)}
+.shop-product.featured{border-color:rgba(85,217,255,.35);background:rgba(85,217,255,.055)}
+.pack-icon{font-size:25px}.pack-info h3{margin:0 0 3px}.pack-info p{margin:0 0 8px;color:#91a8c5;font-size:12px;min-height:32px}.shop-product .btn{width:100%}
+.tag{position:absolute;top:8px;right:8px;font-size:8px;font-weight:900;color:#07111f;background:#55d9ff;padding:4px 6px;border-radius:7px}
+@media(max-width:700px){.shop-products{grid-template-columns:1fr}.shop-head{flex-direction:column}}
+</style>
+</head>
+<body>
+<header class="shell topbar">
+  <a class="logo" href="index.html">ARC<span>ADIA</span></a>
+  <nav class="nav"><a href="index.html">🎮 Juegos</a><button id="logout">Salir</button></nav>
+</header>
+
+<main class="shell" style="padding:38px 0 60px">
+<section class="card profile-card">
+  <div class="profile-cover"></div>
+
+  <div class="profile-main">
+    <div class="profile-avatar" id="avatar">🎮</div>
+    <div class="profile-name">
+      <h1 id="name">Cargando…</h1>
+      <p id="accountType">Cargando cuenta…</p>
+    </div>
+  </div>
+
+  <div class="level-box">
+    <div class="level-line">
+      <div><span class="muted">NIVEL</span><div class="level-number" id="level">1</div></div>
+      <div style="text-align:right"><strong id="xp">0 XP</strong><div class="muted" id="next">100 XP para nivel 2</div></div>
+    </div>
+    <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
+  </div>
+
+  <div class="profile-stats">
+    <div class="profile-stat"><div class="icon">🪙</div><span class="muted">Monedas</span><strong id="coins">0</strong></div>
+    <div class="profile-stat"><div class="icon">🎮</div><span class="muted">Partidas</span><strong id="games">0</strong></div>
+    <div class="profile-stat"><div class="icon">🏆</div><span class="muted">Victorias</span><strong id="wins">0</strong></div>
+    <div class="profile-stat"><div class="icon">📊</div><span class="muted">Rendimiento</span><strong id="rate">0%</strong></div>
+  </div>
+
+  <div class="edit-panel">
+    <h2>Personalizar perfil</h2>
+    <p class="muted">Cambia tu nombre y avatar. Los cambios quedan guardados en Firebase.</p>
+    <div class="form">
+      <div><label>Nombre de jugador</label><input id="newName" maxlength="24" placeholder="Tu nombre"></div>
+      <div><label>Avatar</label><div class="avatar-picker" id="avatars"></div></div>
+      <div class="row"><button class="btn primary" id="save">Guardar cambios</button><div class="msg" id="msg"></div></div>
+    </div>
+  </div>
+
+  <section class="shop-panel">
+    <div class="shop-head">
+      <div>
+        <span class="shop-kicker">ARCADIA SHOP</span>
+        <h2>🛒 Tienda de pistas</h2>
+        <p class="muted">Usa tus monedas para comprar pistas y úsalas en Luces Afuera.</p>
+      </div>
+      <div class="wallet">🪙 <strong id="shopCoins">0</strong></div>
+    </div>
+
+    <div class="hint-inventory">
+      <div class="hint-icon">💡</div>
+      <div><span class="muted">Pistas disponibles</span><strong id="hintBalance">0</strong></div>
+    </div>
+
+    <div class="shop-products">
+      <article class="shop-product">
+        <div class="pack-icon">💡</div>
+        <div class="pack-info"><h3>1 pista</h3><p>Una ayuda para tu próxima partida.</p></div>
+        <button class="btn primary buy-hint" data-qty="1" data-price="10">10 🪙</button>
+      </article>
+      <article class="shop-product featured">
+        <span class="tag">MEJOR VALOR</span>
+        <div class="pack-icon">💡💡💡</div>
+        <div class="pack-info"><h3>3 pistas</h3><p>Pack para ahorrar monedas.</p></div>
+        <button class="btn primary buy-hint" data-qty="3" data-price="25">25 🪙</button>
+      </article>
+      <article class="shop-product">
+        <div class="pack-icon">💡💡💡💡💡</div>
+        <div class="pack-info"><h3>5 pistas</h3><p>Para partidas difíciles.</p></div>
+        <button class="btn primary buy-hint" data-qty="5" data-price="40">40 🪙</button>
+      </article>
+    </div>
+    <div class="msg" id="shopMsg"></div>
+  </section>
+
+  <p class="muted" id="profileStatus" style="margin-top:18px">Cargando progreso…</p>
+</section>
+</main>
+
+<script type="module">
+import {auth,db} from "./js/firebase.js";
+import {watchAuth,logout,ensureProfile} from "./js/auth.js";
+import {doc,getDoc,setDoc,runTransaction} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+import {updateProfile} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+const avatarList=["🎮","😎","🦊","🐼","🐯","🐸","👾","🤖","🦁","🐺","🐲","👽","🥷","🧙","🧑‍🚀","🏆"];
+let selectedAvatar="🎮", currentData=null;
+
+const avatars=document.querySelector("#avatars");
+avatarList.forEach(a=>{
+  const b=document.createElement("button");
+  b.type="button"; b.className="avatar-option"; b.textContent=a;
+  b.onclick=()=>{selectedAvatar=a;document.querySelectorAll(".avatar-option").forEach(x=>x.classList.remove("selected"));b.classList.add("selected")};
+  avatars.appendChild(b);
+});
+
+function xpForLevel(level){
+  if(level<=1) return 0;
+  const n=level-1;
+  return 100*n + 25*n*(n-1)/2;
+}
+function render(p){
+  const level=p.level||1, xp=p.xp||0, coins=p.coins||0, games=p.gamesPlayed||0, wins=p.wins||0, hints=p.hints||0;
+  const currentBase=level<=1?0:xpForLevel(level-1);
+  const nextBase=xpForLevel(level);
+  const span=Math.max(1,nextBase-currentBase);
+  const progress=Math.max(0,Math.min(100,((xp-currentBase)/span)*100));
+  document.querySelector("#avatar").textContent=p.avatar||"🎮";
+  document.querySelector("#name").textContent=p.name||"Jugador";
+  document.querySelector("#level").textContent=level;
+  document.querySelector("#xp").textContent=xp+" XP";
+  document.querySelector("#next").textContent=(Math.max(0,nextBase-xp))+" XP para nivel "+(level+1);
+  document.querySelector("#xpFill").style.width=progress+"%";
+  document.querySelector("#coins").textContent=coins;
+  document.querySelector("#games").textContent=games;
+  document.querySelector("#wins").textContent=wins;
+  document.querySelector("#rate").textContent=(games?Math.round(wins/games*100):0)+"%";
+  document.querySelector("#shopCoins").textContent=coins;
+  document.querySelector("#hintBalance").textContent=hints;
+  document.querySelector("#newName").value=p.name||"Jugador";
+  selectedAvatar=p.avatar||"🎮";
+  document.querySelectorAll(".avatar-option").forEach(x=>x.classList.toggle("selected",x.textContent===selectedAvatar));
+}
+
+watchAuth(async user=>{
+  if(!user){location.href="login.html";return}
+  document.querySelector("#accountType").textContent=user.isAnonymous?"Cuenta invitado":"Cuenta registrada · "+(user.email||"");
+  await ensureProfile(user);
+  try{
+    const snap=await getDoc(doc(db,"users",user.uid));
+    currentData=snap.exists()?snap.data():{name:user.displayName||"Jugador",avatar:"🎮",level:1,xp:0,coins:0,wins:0,gamesPlayed:0};
+    render(currentData);
+    document.querySelector("#profileStatus").textContent="✅ Perfil sincronizado con Firebase.";
+  }catch(error){
+    console.error(error);
+    currentData=currentData||{name:user.displayName||"Jugador",avatar:"🎮",level:1,xp:0,coins:0,wins:0,gamesPlayed:0};
+    render(currentData);
+    document.querySelector("#profileStatus").textContent="⚠️ Cuenta activa, pero no se pudo leer el progreso de Firestore. Revisa que Firestore esté creado y sus reglas publicadas.";
+  }
+});
+
+document.querySelector("#save").onclick=async()=>{
+  const user=auth.currentUser;if(!user)return;
+  const msg=document.querySelector("#msg"), btn=document.querySelector("#save");
+  const name=document.querySelector("#newName").value.trim();
+  if(!name){msg.className="msg error";msg.textContent="Escribe un nombre.";return}
+  btn.disabled=true;msg.className="msg";msg.textContent="Guardando…";
+  try{
+    // setDoc(..., {merge:true}) funciona tanto si el documento existe como si no.
+    // También evita que una ausencia temporal del perfil bloquee el guardado.
+    const savePromise=setDoc(doc(db,"users",user.uid),{
+      name,
+      avatar:selectedAvatar
+    },{merge:true});
+
+    // Si Firebase no responde, no dejamos la interfaz eternamente en "Guardando…".
+    await Promise.race([
+      savePromise,
+      new Promise((_,reject)=>setTimeout(()=>reject(new Error(
+        "Firebase no respondió en 8 segundos. Revisa Firestore y las reglas."
+      )),8000))
+    ]);
+
+    // El nombre de Authentication es secundario al perfil de Firestore.
+    // Si falla, no anulamos el guardado del perfil.
+    if(!user.isAnonymous){
+      try{ await updateProfile(user,{displayName:name}); }
+      catch(authError){ console.warn("No se actualizó displayName de Auth:",authError); }
+    }
+
+    currentData={...currentData,name,avatar:selectedAvatar};
+    render(currentData);
+    msg.className="msg good";
+    msg.textContent="✅ Cambios guardados correctamente.";
+  }catch(error){
+    console.error("Error guardando perfil:",error);
+    msg.className="msg error";
+    msg.textContent="❌ No se pudo guardar. "+(error.message||"Error desconocido");
+  }finally{
+    btn.disabled=false;
+  }
+};
+
+
+document.querySelectorAll(".buy-hint").forEach(button=>{
+  button.onclick=async()=>{
+    const user=auth.currentUser;
+    if(!user || user.isAnonymous){
+      document.querySelector("#shopMsg").className="msg error";
+      document.querySelector("#shopMsg").textContent="Necesitas una cuenta registrada para comprar pistas.";
+      return;
+    }
+
+    const qty=Number(button.dataset.qty), price=Number(button.dataset.price);
+    const msg=document.querySelector("#shopMsg");
+    const original=button.textContent;
+    button.disabled=true;
+    button.textContent="Comprando…";
+    msg.className="msg";
+    msg.textContent="";
+
+    try{
+      const userRef=doc(db,"users",user.uid);
+      let newData=null;
+
+      await runTransaction(db,async tx=>{
+        const snap=await tx.get(userRef);
+        if(!snap.exists()) throw new Error("No se encontró tu perfil.");
+        const data=snap.data();
+        const coins=Number(data.coins||0);
+        if(coins<price) throw new Error(`Necesitas ${price} monedas y tienes ${coins}.`);
+
+        newData={
+          ...data,
+          coins:coins-price,
+          hints:Number(data.hints||0)+qty
+        };
+        tx.set(userRef,{coins:newData.coins,hints:newData.hints,updatedAt:new Date()},{merge:true});
+      });
+
+      currentData={...currentData,coins:newData.coins,hints:newData.hints};
+      render(currentData);
+      msg.className="msg good";
+      msg.textContent=`✅ Compraste ${qty} ${qty===1?"pista":"pistas"} por ${price} monedas.`;
+    }catch(error){
+      console.error("Compra de pistas:",error);
+      msg.className="msg error";
+      msg.textContent="❌ "+(error.message||"No se pudo completar la compra.");
+    }finally{
+      button.disabled=false;
+      button.textContent=original;
+    }
+  };
+});
+
+document.querySelector("#logout").onclick=async()=>{await logout();location.href="index.html"};
+</script>
+</body>
+</html>
