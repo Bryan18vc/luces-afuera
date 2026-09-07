@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Michi Online · Arcadia</title>
+<link rel="stylesheet" href="../css/global.css">
+<style>
+.game{width:min(100%,900px);margin:24px auto;padding-bottom:30px}
+.michi-card{overflow:hidden}
+.mode-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:20px 0}
+.mode-card{padding:18px;border:1px solid var(--border);border-radius:18px;background:rgba(255,255,255,.025);cursor:pointer;text-align:left;transition:.16s}
+.mode-card:hover{transform:translateY(-2px);background:rgba(255,255,255,.045)}
+.mode-card.active{border-color:#55d9ff;box-shadow:0 0 0 2px rgba(85,217,255,.10)}
+.mode-icon{font-size:32px}.mode-card h2{margin:7px 0 4px}.mode-card p{margin:0;color:var(--muted);font-size:13px}
+.mode-content{display:none}.mode-content.active{display:block}
+.online-actions{display:grid;grid-template-columns:1fr auto 1fr;gap:9px;align-items:center}
+.online-actions input{width:100%;box-sizing:border-box}
+.code-sep{color:var(--muted);font-weight:900;text-align:center}
+.room{font-size:clamp(22px,5vw,30px);letter-spacing:.15em;font-weight:900}
+.status{padding:12px;border-radius:12px;background:rgba(255,255,255,.04);min-height:20px}
+.game-layout{display:grid;grid-template-columns:minmax(280px,520px) minmax(220px,1fr);gap:20px;align-items:start;margin-top:16px}
+.board{width:min(100%,520px);margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.cell{width:100%;aspect-ratio:1;border:1px solid var(--border);border-radius:18px;background:#0b1a2e;color:var(--text);font-size:clamp(48px,12vw,86px);font-weight:900;cursor:pointer;touch-action:manipulation;transition:transform .12s,background .16s}
+.cell:hover{background:#122944}.cell:active{transform:scale(.96)}.cell:disabled{cursor:default;opacity:.92}
+.ai-levels{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.level-btn{padding:10px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.025);color:var(--text);cursor:pointer;font-weight:800}
+.level-btn.active{border-color:#55d9ff;background:rgba(85,217,255,.08)}
+.panel-mini{padding:15px;border-radius:16px;background:rgba(255,255,255,.025);border:1px solid var(--border)}
+.panel-mini h3{margin-top:0}
+.reward{margin-top:10px;padding:12px;border-radius:12px;background:rgba(88,227,155,.08);border:1px solid rgba(88,227,155,.2)}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+@media(max-width:760px){
+  .game{margin:12px auto;padding:0 10px 24px}
+  .mode-grid{grid-template-columns:1fr}
+  .game-layout{grid-template-columns:1fr}
+  .online-actions{grid-template-columns:1fr}
+  .code-sep{display:none}
+  .board{width:min(92vw,520px)}
+}
+@media(max-width:430px){
+  .cell{border-radius:13px;font-size:clamp(40px,18vw,66px)}
+  .ai-levels{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header class="shell topbar">
+  <a class="logo" href="../index.html">ARC<span>ADIA</span></a>
+  <nav class="nav"><a href="../index.html">Menú</a><a href="../perfil.html">Perfil</a></nav>
+</header>
+
+
+<main class="shell game">
+<section class="card michi-card">
+  <h1>⭕❌ Michi</h1>
+  <p class="muted">Juega online con otra persona o enfréntate a la máquina.</p>
+
+  <div class="mode-grid">
+    <button class="mode-card active" id="modeOnline" type="button">
+      <div class="mode-icon">🌐</div>
+      <h2>Jugar online</h2>
+      <p>Crea una sala o únete con un código.</p>
+    </button>
+    <button class="mode-card" id="modeAI" type="button">
+      <div class="mode-icon">🤖</div>
+      <h2>Contra la máquina</h2>
+      <p>Elige dificultad y juega sin depender de Internet.</p>
+    </button>
+  </div>
+
+  <div id="onlineMode" class="mode-content active">
+    <div class="online-actions">
+      <button class="btn primary" id="create">Crear sala</button>
+      <div class="code-sep">O</div>
+      <div class="row" style="margin:0">
+        <input id="code" maxlength="6" placeholder="CÓDIGO" autocomplete="off">
+        <button class="btn" id="join">Unirse</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="aiMode" class="mode-content">
+    <div class="ai-levels">
+      <button class="level-btn active" data-ai="easy" type="button">🟢 Fácil</button>
+      <button class="level-btn" data-ai="normal" type="button">🟡 Normal</button>
+      <button class="level-btn" data-ai="hard" type="button">🔴 Difícil</button>
+    </div>
+    <button class="btn primary" id="startAI">🤖 Empezar contra la máquina</button>
+  </div>
+
+  <div class="game-layout">
+    <div>
+      <div class="status" id="status">Selecciona un modo para comenzar.</div>
+      <div class="board" id="board" aria-label="Tablero de Michi"></div>
+      <div class="controls">
+        <button class="btn" id="rematch">Nueva partida</button>
+        <button class="btn danger" id="leave">Salir de sala</button>
+      </div>
+    </div>
+
+    <aside class="panel-mini">
+      <h3>🎯 Partida</h3>
+      <p class="muted">Tu símbolo: <b id="mark">—</b></p>
+      <div id="roomBox" class="status">Sin sala</div>
+      <div id="aiInfo" class="status" style="margin-top:10px;display:none"></div>
+      <div id="reward" class="reward" style="display:none"></div>
+      <p class="muted" style="margin-top:14px">En online, comparte el código de sala con tu rival. Contra la máquina, X juega primero.</p>
+    </aside>
+  </div>
+</section>
+</main>
+
+
+<script type="module">
+import {auth,rtdb} from "../js/firebase.js";
+import {watchAuth,ensureProfile} from "../js/auth.js";
+import {awardGameResult} from "../js/progress.js";
+import {ref,set,get,onValue,update,runTransaction} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+
+const boardEl=document.querySelector("#board");
+const markEl=document.querySelector("#mark");
+const roomBox=document.querySelector("#roomBox");
+const statusEl=document.querySelector("#status");
+const rewardEl=document.querySelector("#reward");
+const onlineMode=document.querySelector("#onlineMode");
+const aiMode=document.querySelector("#aiMode");
+const aiInfo=document.querySelector("#aiInfo");
+
+let mode="online", roomId="", myMark="", data=null, gameListener=null;
+let aiLevel="easy", aiBoard=Array(9).fill(""), aiTurn=false, aiGameOver=false;
+let currentUser=null, awardedGames=new Set();
+
+const empty=()=>Array(9).fill("");
+const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+function winner(b){
+  const line=lines.find(x=>b[x[0]]&&b[x[0]]===b[x[1]]&&b[x[1]]===b[x[2]]);
+  return line ? b[line[0]] : null;
+}
+function drawResult(b){
+  return !winner(b) && b.every(Boolean);
+}
+function setStatus(text){statusEl.textContent=text}
+function resetBoardVisual(){
+  boardEl.innerHTML="";
+  for(let i=0;i<9;i++){
+    const c=document.createElement("button");
+    c.className="cell"; c.type="button"; c.setAttribute("aria-label",`Casilla ${i+1}`);
+    c.onclick=()=>handleCell(i);
+    boardEl.appendChild(c);
+  }
+}
+function paint(b,disabled=false){
+  b.forEach((v,i)=>{
+    const c=boardEl.children[i];
+    if(c){c.textContent=v;c.disabled=disabled || !!v;}
+  });
+}
+function switchMode(next){
+  mode=next;
+  document.querySelector("#modeOnline").classList.toggle("active",next==="online");
+  document.querySelector("#modeAI").classList.toggle("active",next==="ai");
+  onlineMode.classList.toggle("active",next==="online");
+  aiMode.classList.toggle("active",next==="ai");
+  rewardEl.style.display="none";
+  if(next==="ai"){
+    leaveRoom(false);
+    startAI();
+  }else{
+    aiGameOver=true; aiTurn=false;
+    aiInfo.style.display="none";
+    markEl.textContent="—";
+    roomBox.textContent="Sin sala";
+    paint(empty(),true);
+    setStatus("Crea una sala o únete con un código.");
+  }
+}
+
+async function processResult(result, playerMark, gameKey){
+  if(!currentUser || !playerMark || !gameKey || awardedGames.has(gameKey)) return;
+  awardedGames.add(gameKey);
+  let xp=20,coins=3,winResult=false;
+  const w=result.winner;
+  if(w){
+    if(w===playerMark){xp=100;coins=20;winResult=true}
+    else {xp=20;coins=3}
+  }else if(result.draw){xp=40;coins=8}
+
+  try{
+    const reward=await awardGameResult({
+      userId:currentUser.uid,eventId:gameKey,xp,coins,win:winResult,game:"michi"
+    });
+    if(reward.alreadyAwarded)return;
+    rewardEl.style.display="block";
+    rewardEl.textContent=`🎉 +${reward.xpGained} XP · +${reward.coinsGained} monedas`+
+      (reward.newLevel>reward.oldLevel?` · ⬆️ ¡Nivel ${reward.newLevel}!`:"");
+  }catch(e){
+    console.error(e);
+    awardedGames.delete(gameKey);
+    rewardEl.style.display="block";
+    rewardEl.textContent="⚠️ La partida terminó, pero no se pudo guardar la recompensa.";
+  }
+}
+
+function renderOnline(){
+  markEl.textContent=myMark||"—";
+  roomBox.textContent=roomId?`Sala: ${roomId}`:"Sin sala";
+  if(!data){paint(empty(),true);return}
+  const b=Array.isArray(data.board)?data.board:empty();
+  const ended=data.status!=="playing";
+  paint(b,ended||data.turn!==myMark);
+  if(data.status==="playing"){
+    setStatus(data.turn===myMark?"🎯 Tu turno":"⏳ Turno del rival");
+  }else if(data.status==="won"){
+    setStatus(data.winner===myMark?"🏆 ¡Ganaste!":"😔 Ganó "+data.winner);
+  }else setStatus("🤝 ¡Empate!");
+
+  if(ended){
+    processResult({
+      winner:data.winner||null,
+      draw:data.status==="draw"
+    },myMark,`online_${roomId}_${data.gameId}_${currentUser?.uid||""}`);
+  }
+}
+
+function listenRoom(){
+  if(gameListener)gameListener();
+  gameListener=onValue(ref(rtdb,"rooms/"+roomId),snap=>{
+    data=snap.val();renderOnline();
+  });
+}
+
+function randomCode(){return Math.random().toString(36).slice(2,8).toUpperCase()}
+function newGameId(){return Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,7)}
+
+async function createRoom(){
+  if(!currentUser){setStatus("Inicia sesión para crear una sala.");return}
+  mode="online";
+  roomId=randomCode();myMark="X";rewardEl.style.display="none";
+  await set(ref(rtdb,"rooms/"+roomId),{
+    board:empty(),turn:"X",status:"playing",winner:null,
+    playerX:currentUser.uid,playerO:null,moveCount:0,gameId:newGameId()
+  });
+  listenRoom();
+}
+
+async function joinRoom(){
+  if(!currentUser){setStatus("Inicia sesión para unirte a una sala.");return}
+  const c=document.querySelector("#code").value.trim().toUpperCase();
+  if(!c){setStatus("Escribe el código de la sala.");return}
+  const snap=await get(ref(rtdb,"rooms/"+c));
+  if(!snap.exists()){setStatus("Sala no encontrada.");return}
+  const r=snap.val();
+  if(r.playerO && r.playerO!==currentUser.uid){setStatus("La sala está llena.");return}
+  roomId=c;myMark="O";rewardEl.style.display="none";
+  await update(ref(rtdb,"rooms/"+c),{playerO:currentUser.uid});
+  listenRoom();
+}
+
+async function playOnline(i){
+  if(!data||data.status!=="playing"||data.turn!==myMark||data.board?.[i])return;
+  await runTransaction(ref(rtdb,"rooms/"+roomId),cur=>{
+    if(!cur||cur.status!=="playing"||cur.turn!==myMark)return;
+    const b=Array.isArray(cur.board)?cur.board.slice():empty();
+    if(b[i])return;
+    b[i]=myMark;
+    const w=winner(b),n=b.filter(Boolean).length;
+    return {...cur,board:b,moveCount:n,
+      turn:(w||n===9)?cur.turn:(myMark==="X"?"O":"X"),
+      status:w?"won":n===9?"draw":"playing",
+      winner:w?myMark:null};
+  });
+}
+
+/* ---------- IA ---------- */
+function startAI(){
+  aiBoard=empty();aiTurn=false;aiGameOver=false;
+  myMark="X";markEl.textContent="X";roomId="";
+  roomBox.textContent="🤖 Contra la máquina";
+  aiInfo.style.display="block";
+  aiInfo.textContent=`Dificultad: ${aiLevel==="easy"?"Fácil":aiLevel==="normal"?"Normal":"Difícil"}`;
+  rewardEl.style.display="none";
+  paint(aiBoard,false);
+  setStatus("🎯 Tu turno — juegas con X");
+}
+function available(b){return b.map((v,i)=>v?null:i).filter(i=>i!==null)}
+function minimax(b,maximizing){
+  const w=winner(b);
+  if(w==="O")return {score:10-depth(b)};
+  if(w==="X")return {score:depth(b)-10};
+  if(drawResult(b))return {score:0};
+  const moves=available(b);
+  let best=maximizing?{score:-Infinity}:{score:Infinity};
+  for(const i of moves){
+    b[i]=maximizing?"O":"X";
+    const r=minimax(b,!maximizing);
+    b[i]="";
+    if(maximizing){
+      if(r.score>best.score)best={score:r.score,index:i};
+    }else if(r.score<best.score)best={score:r.score,index:i};
+  }
+  return best;
+}
+function depth(b){return 9-available(b).length}
+
+function chooseAIMove(){
+  const av=available(aiBoard);
+  if(!av.length)return null;
+  if(aiLevel==="easy"){
+    // Mostly random, but occasionally takes a winning move.
+    const winning=av.find(i=>{aiBoard[i]="O";const w=winner(aiBoard);aiBoard[i]="";return w==="O"});
+    if(winning!==undefined && Math.random()<0.7)return winning;
+    return av[Math.floor(Math.random()*av.length)];
+  }
+  if(aiLevel==="normal"){
+    // Tactical: win, block, otherwise prefer center/corners/random.
+    const winning=av.find(i=>{aiBoard[i]="O";const w=winner(aiBoard);aiBoard[i]="";return w==="O"});
+    if(winning!==undefined)return winning;
+    const block=av.find(i=>{aiBoard[i]="X";const w=winner(aiBoard);aiBoard[i]="";return w==="X"});
+    if(block!==undefined && Math.random()<0.9)return block;
+    if(aiBoard[4]==="")return 4;
+    const corners=av.filter(i=>[0,2,6,8].includes(i));
+    if(corners.length)return corners[Math.floor(Math.random()*corners.length)];
+    return av[Math.floor(Math.random()*av.length)];
+  }
+  return minimax(aiBoard.slice(),true).index;
+}
+function finishAI(w){
+  aiGameOver=true;aiTurn=false;
+  if(w==="X"){setStatus("🏆 ¡Ganaste contra la máquina!")}
+  else if(w==="O"){setStatus("🤖 La máquina ganó")}
+  else {setStatus("🤝 Empate")}
+  processResult({winner:w,draw:!w},myMark,`ai_${Date.now().toString(36)}_${Math.random()}`);
+}
+function aiMove(){
+  if(aiGameOver)return;
+  aiTurn=true;paint(aiBoard,true);setStatus("🤖 La máquina está pensando…");
+  setTimeout(()=>{
+    const i=chooseAIMove();
+    if(i===null)return;
+    aiBoard[i]="O";paint(aiBoard,false);
+    const w=winner(aiBoard);
+    if(w||drawResult(aiBoard)){finishAI(w);return}
+    aiTurn=false;setStatus("🎯 Tu turno — juegas con X");
+    paint(aiBoard,false);
+  },aiLevel==="hard"?420:300);
+}
+function playAI(i){
+  if(aiGameOver||aiTurn||aiBoard[i])return;
+  aiBoard[i]="X";paint(aiBoard,false);
+  const w=winner(aiBoard);
+  if(w||drawResult(aiBoard)){finishAI(w);return}
+  aiMove();
+}
+function handleCell(i){
+  if(mode==="online")playOnline(i);else playAI(i);
+}
+
+function leaveRoom(updateUI=true){
+  if(gameListener){gameListener();gameListener=null}
+  roomId="";myMark="";data=null;
+  if(updateUI){
+    rewardEl.style.display="none";
+    renderOnline();
+    setStatus("Has salido de la sala.");
+  }
+}
+
+document.querySelector("#modeOnline").onclick=()=>switchMode("online");
+document.querySelector("#modeAI").onclick=()=>switchMode("ai");
+document.querySelector("#create").onclick=createRoom;
+document.querySelector("#join").onclick=joinRoom;
+
+document.querySelectorAll(".level-btn").forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll(".level-btn").forEach(x=>x.classList.remove("active"));
+    btn.classList.add("active");
+    aiLevel=btn.dataset.ai;
+    if(mode==="ai")startAI();
+  };
+});
+document.querySelector("#startAI").onclick=startAI;
+
+document.querySelector("#rematch").onclick=async()=>{
+  if(mode==="ai"){startAI();return}
+  if(!roomId||!data)return;
+  rewardEl.style.display="none";
+  await update(ref(rtdb,"rooms/"+roomId),{
+    board:empty(),turn:"X",status:"playing",winner:null,moveCount:0,gameId:newGameId()
+  });
+};
+document.querySelector("#leave").onclick=()=>{
+  if(mode==="online")leaveRoom();
+  else switchMode("online");
+};
+
+resetBoardVisual();
+watchAuth(async user=>{
+  if(!user){location.href="../login.html";return}
+  currentUser=user;
+  await ensureProfile(user);
+  switchMode("online");
+});
+</script>
+</body>
+</html>
